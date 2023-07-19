@@ -7,13 +7,25 @@
 #    http://shiny.rstudio.com/
 #
 
+Sys.setlocale("LC_ALL", "en_US.UTF-8")
 library(shiny)
 library(thematic)
 library(shinythemes)
 library(shinycssloaders)
+library(shinyWidgets)
 library(tidyverse) 
 library(effectsize)
 library(plyr)
+library(scales)
+
+input <<- tibble(
+  alts = "Group 1 ≠ Group 2",
+  mean1 = 18.1, mean2 = 3.1,
+  sd1 = 20.3, sd2 = 2.8,
+  reps = 1000,
+  sample_size = 50,
+  alpha = 0.05
+)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -23,7 +35,7 @@ ui <- fluidPage(
   titlePanel(title = tags$link(rel = "icon",
                                type = "image",
                                href = "https://image.pngaaa.com/393/402393-middle.png"),
-             "Power analysis (independent t- test)"),
+             "PowerSimulate (independent t- test)"),
   HTML("<img src='ind_t_eng.svg'' width='600'>"),
   p(HTML("Power analysis based on the simulation of a population, and the probability of 
          obtaining a significant result with a sample of a given size")),
@@ -47,14 +59,14 @@ ui <- fluidPage(
                         label = "Mean",
                         min = -Inf,
                         max = Inf,
-                        value = 18,
+                        value = 18.1,
                         step = 0.0001,
                         width = '300px'),
            numericInput(inputId = "sd1",
                         label = "Standard deviation",
                         min = -Inf,
                         max = Inf,
-                        value = 3,
+                        value = 3.1,
                         step = 0.0001,
                         width = '300px'),
            hr(),
@@ -67,33 +79,34 @@ ui <- fluidPage(
                         label = "Mean",
                         min = -Inf,
                         max = Inf,
-                        value = 20,
+                        value = 20.3,
                         step = 0.0001,
                         width = '300px'),
            numericInput(inputId = "sd2",
                         label = "Standard deviation",
                         min = -Inf,
                         max = Inf,
-                        value = 3,
+                        value = 2.8,
                         step = 0.0001,
                         width = '300px')
            ),
     column(4,
            tags$h1("Population effect size"),
+           tags$h3("If this was the difference in the population"),
            plotOutput("effectPlot") %>% 
              withSpinner(color = "#ff5555"),
-           tags$p(HTML("<b style=color:#ff5555;>NOTE: </b>"),
-                  " For the histogram of the simulation to look right,
-                      the", HTML("<b> minimum target score</b>"), "must be within the
-                      range of the sum of the dice rolled and the modifier.
-                      For example, when rolling", HTML("<b> 1d20 + 3</b>"), "the result can only
-                      be between 4 and 23. If you select a", HTML("<b> minimum target score</b>"),
-                  "smaller than 4 or greater than 23, the histogram will look
-                      strange, although the", HTML("<b> probability</b>"), "(shown below) will be correct"),
+           tags$p(HTML("<b style=color:#ff5555;>NOTE:</b> While Cohen's 
+                       <em>d</em> is the most common effect size for standardised
+                       differences between two means. However, it has some limitations:
+                       first, it pooles the standard deviations of the two groups, which may not be 
+                       ideal if they are quite different, and tends to provide biased estimates
+                       when the groups have small sample sizes. For this reason, Hedges' <em>g</em>
+                       is a valuable alternative.")),
     ),
     column(2,
            tags$h2("Simulation parameters"),
            tags$h4("Sample size"),
+           tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {background:#ff5555}")),
            sliderInput(inputId = "sample_size",
                        label = "Sample size per group",
                        min = 5,
@@ -101,6 +114,7 @@ ui <- fluidPage(
                        value = 30,
                        step = 1,
                        width = '300px'),
+           tags$style(HTML(".js-irs-1 .irs-single, .js-irs-1 .irs-bar-edge, .js-irs-1 .irs-bar {background:#ff5555}")),
            sliderInput(inputId = "alpha",
                        label = HTML("Significance level &alpha; (tipically 0.05)"),
                        min = 0,
@@ -108,11 +122,12 @@ ui <- fluidPage(
                        value = 0.05,
                        step = 0.001,
                        width = '300px'),
-           selectInput(inputId = "alternative",
+           selectInput(inputId = "alts",
                        label = "Hypothesis",
                        choices = c("Group 1 ≠ Group 2", 
                                    "Group 1 > Group 2",
-                                   "Group 2 > Group 1")),
+                                   "Group 1 < Group 2"
+                                   )),
            numericInput(inputId = "reps",
                         label = "Number of simulations (No need to change it)",
                         min = 1,
@@ -123,40 +138,57 @@ ui <- fluidPage(
            ),
     column(4,
            tags$h1("Statistical power"),
+           tags$h3("This is the statistical power you would reach"),
            plotOutput("powerPlot") %>% 
              withSpinner(color = "#ff5555"),
-           tags$p(HTML("<b style=color:#ff5555;>NOTE: </b>"),
-                  " For the histogram of the simulation to look right,
-                      the", HTML("<b> minimum target score</b>"), "must be within the
-                      range of the sum of the dice rolled and the modifier.
-                      For example, when rolling", HTML("<b> 1d20 + 3</b>"), "the result can only
-                      be between 4 and 23. If you select a", HTML("<b> minimum target score</b>"),
-                  "smaller than 4 or greater than 23, the histogram will look
-                      strange, although the", HTML("<b> probability</b>"), "(shown below) will be correct")
+           htmlOutput("powText")
            )
     )
 )
 
 server <- function(input, output, session) {
-  output$effectPlot <- renderPlot({
-    dat <- tibble(A = rnorm(1000, mean = input$mean1, sd = input$sd1),
-                  B = rnorm(1000, mean = input$mean2, sd = input$sd2))
-    cohen.d <- cohens_d(x = dat$A, y = dat$B,
-                        pooled_sd = FALSE,
-                        paired = FALSE,
-                        ci = 0.95)
-    hedges.g <- hedges_g(x = dat$A, y = dat$B,
-                         pooled_sd = FALSE,
-                         paired = FALSE,
+ 
+  # Simulate population
+  dat <- reactive({
+    datos <- tibble(A = rnorm(100000, mean = input$mean1, sd = input$sd1),
+                    B = rnorm(100000, mean = input$mean2, sd = input$sd2))
+    return(datos)
+  })
+  
+  # Calculate effect sizes
+  cohen.d <- reactive({
+    coh.d <- cohens_d(x = dat()$A, y = dat()$B,
+                      pooled_sd = FALSE,
+                      paired = FALSE,
+                      ci = 0.95)
+    return(coh.d)
+  })
+  hedges.g <- reactive({
+    hed.g <- hedges_g(x = dat()$A, y = dat()$B,
+                      pooled_sd = FALSE,
+                      paired = FALSE,
+                      ci = 0.95)
+    return(hed.g)
+  })   
+  glass.delta <- reactive({
+    gla.d <- glass_delta(x = dat()$A, y = dat()$B,
                          ci = 0.95)
-    glass.delta <- glass_delta(x = dat$A, y = dat$B,
-                               ci = 0.95)
-    x = seq(min(dat), max(dat), length=200)
-    dat.dist <- data.frame(A = dnorm(x, mean = input$mean1, sd = input$sd1),
-                           B = dnorm(x, mean = input$mean2, sd = input$sd2), x = x) %>%
+    return(gla.d)
+  })
+  
+  # Create normal distributions with input means and SDs
+  dat.dist <- reactive({
+    x = seq(min(dat()), max(dat()), length = 200)
+    dat.distri <- data.frame(A = dnorm(x, mean = input$mean1, sd = input$sd1),
+                             B = dnorm(x, mean = input$mean2, sd = input$sd2), x = x) %>%
       pivot_longer(cols = A:B, names_to = "Group", values_to = "Value")
-    ggplot(data = dat.dist, aes(x = x, fill = Group)) +
-      geom_polygon(aes(y = Value), alpha = 0.4) +
+    return(dat.distri)
+  })
+  
+  # Population distribution plot 
+  output$effectPlot <- renderPlot({
+    ggplot(data = dat.dist(), aes(x = x, fill = Group)) +
+      geom_polygon(aes(y = Value), alpha = 0.8) +
       xlab("Value") + ylab("Probability density") + 
       geom_vline(aes(xintercept = input$mean1, color = "white"),
                  linetype="dashed",
@@ -165,77 +197,84 @@ server <- function(input, output, session) {
                  linetype="dashed",
                  show.legend = FALSE) +
       scale_fill_discrete(labels = c(input$label1, input$label2)) +
-      annotate("text", x = min(dat.dist$x), y = Inf, 
+      annotate("text", x = min(dat.dist()$x), y = Inf, 
                hjust = 0, vjust = 2, size = 7,
-               label = paste0("Cohen's d = ", round(abs(cohen.d$Cohens_d), 2))) +
-      annotate("text", x = min(dat.dist$x), y = Inf, 
+               label = paste0("Cohen's d = ", round(abs(cohen.d()$Cohens_d), 2))) +
+      annotate("text", x = min(dat.dist()$x), y = Inf, 
                hjust = 0, vjust = 6,
-               label = paste0("Hedge's g = ", round(abs(hedges.g$Hedges_g), 2))) +
-      annotate("text", x = min(dat.dist$x), y = Inf, 
+               label = paste0("Hedge's g = ", round(abs(hedges.g()$Hedges_g), 2))) +
+      annotate("text", x = min(dat.dist()$x), y = Inf, 
                hjust = 0, vjust = 8,
-               label = paste0("Glass's delta = ", round(abs(glass.delta$Glass_delta), 2))) +
-      geom_segment(aes(x = input$mean1, y = max(dat.dist$Value)*0.5, 
-                       xend = input$mean2, yend = max(dat.dist$Value)*0.5), 
+               label = paste0("Glass's delta = ", round(abs(glass.delta()$Glass_delta), 2))) +
+      geom_segment(aes(x = input$mean1, y = max(dat.dist()$Value)*0.5, 
+                       xend = input$mean2, yend = max(dat.dist()$Value)*0.5), 
                    arrow = arrow(length = unit(0.02, "npc"), ends = "both")) +
-      annotate("text", x = (input$mean1 + input$mean2)/2, y = 0, 
-               vjust = 0.5, hjust = -0.5, angle = 90, size = 5,
-               label = paste0("Difference = ", round(abs(input$mean1 - input$mean2), 2))) +
+      annotate("text", x = Inf, y = Inf, 
+               hjust = 1.1, vjust = 2, size = 5,
+               label = paste0("Mean difference = ", round(abs(input$mean1 - input$mean2), 2))) +
       theme(legend.position="bottom", 
             legend.title=element_text(size=14),
             legend.text = element_text(size = 12))
     })
   
-  output$powerPlot <- renderPlot({
-    hypoth <- reactive({
-      hypo <- ifelse(input$alternative == "Group 1 ≠ Group 2", "two.sided",
-           ifelse(input$alternative == "Group 1 > Group 2", "greater",
-                  "less"))
-      return(hypo)
-    })
+  # Create object with selected hypothesis alternative
+  altern <<- reactive({
+    dplyr::case_when(
+      input$alts == "Group 1 ≠ Group 2" ~ "two.sided",
+      input$alts == "Group 1 > Group 2" ~ "greater",
+      TRUE ~ "less")
+  })
+  
+  sig.lev <<- reactive({
+    input$alpha
+  })
+  
+  # Simulate samples and test significance in each
     dat.sim <- reactive({
-      dtos <- tibble(A = rnorm(50000,  mean = input$mean1, sd = input$sd1),
-                      B = rnorm(50000, mean = input$mean2, sd = input$sd2))
-      return(datos)
-    })
-    samples.sim <- reactive({
-      samps <- map_dfr(seq_len(input$reps), ~dat.sim %>%
-                           sample_n(input$sample_size) %>%
-                           mutate(sample = as.factor(.x)))
-      return(samps)
-    })
-    testfun <- reactive({
-      myf <- function(x, y) {
-        comp = (t.test(x, y,
-                       alternative = hypoth, 
-                      paired = TRUE))
-      }
-      return(myf)
-    })
-    #testfun <- testfun()
-    comps <- reactive({
-      compas <- ddply(samples.sim, .(sample), summarise,
-                      p = testfun(x = A, y = B)$p.value,
-                      "Significance" = ifelse(p <= input$alpha, "Significant", "Non-significant"))
-      return(compas)
-    })
-    power <- reactive({
-      powsum <- sum(comps$Significance == "Significant") / input$reps
-      return(powsum)
-    })
-    ggplot(comps, aes(x = p, fill = Significance)) +
+    req(input$alts)
+    dato <- ddply(map_dfr(seq_len(input$reps), ~dat() %>%
+                            sample_n(input$sample_size) %>%
+                            mutate(sample = as.factor(.x))),
+                  .(sample),
+                  summarise,
+                  p = round(t.test(x = A, y = B,
+                                   alternative = altern(), 
+                                   paired = TRUE)$p.value, 3),
+                  "Significance" = ifelse(p <= sig.lev(), "Significant", "Non-significant"))
+    return(dato)
+  })
+  
+    # Power simulation plot 
+  output$powerPlot <- renderPlot({
+    ggplot(dat.sim(), aes(x = p, fill = Significance)) +
       scale_fill_hue(direction = -1) +
       geom_histogram(bins = 1/input$alpha, breaks = seq(0, 1, input$alpha), alpha = 0.8) +
       labs(y = "Count", x = "p-value") +
+      scale_x_continuous(breaks = pretty_breaks(n = 20)) +
       annotate("text", x = 0.5, y = Inf, size = 7, vjust = 2,
-               label = paste0("Power = ", round(power, 3))) +
+               label = paste0("Power = ", round(sum(dat.sim()$Significance == "Significant") / input$reps, 3))) +
       annotate("text", x = 0.5, y = Inf, vjust = 5,
                label = paste0("Sample size = ", input$sample_size)) +
+      annotate("text", x = 0.5, y = Inf, vjust = 6.5,
+               label = paste0("α = ", input$alpha)) +
       theme(legend.position="bottom", 
             legend.title=element_text(size=14),
             legend.text = element_text(size = 12))
+    })
+  
+  output$powText <- renderText({
+    paste("<b style=color:#ff5555;>INTERPRETATION: </b>
+          The power is nothing more than the proportion of significant results 
+          (<em>p</em> < α) with . So, if the true difference in the population was as
+          specified, with a random sample of ", input$sample_size, " subjects, 
+          you would get a significant result in aproximately ", 
+          percent(round(sum(dat.sim()$Significance == "Significant") / input$reps, 2)),
+          " of the cases.")
   })
-}
+  }
 
+# Same theme for plots
 thematic_shiny()
+
 # Run the application 
 shinyApp(ui = ui, server = server)

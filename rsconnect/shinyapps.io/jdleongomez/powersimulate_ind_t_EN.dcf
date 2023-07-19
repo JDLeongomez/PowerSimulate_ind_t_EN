@@ -1,0 +1,12 @@
+name: powersimulate_ind_t_EN
+title: powersimulate_ind_t_EN
+username: jdleongomez
+account: jdleongomez
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9475651
+bundleId: 7472965
+url: https://jdleongomez.shinyapps.io/powersimulate_ind_t_EN/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
