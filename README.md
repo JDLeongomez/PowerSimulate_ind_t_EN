@@ -3,7 +3,7 @@
 ## Independent *t*-test
 <br>
 Power analysis based on the simulation of a population, and the probability of obtaining a significant result with a sample of a given size.
-Although more direct tools for power analysis exist for simulations to illustrate the concept of statistical power.
+Although more direct tools for power analysis exist for *t*-tests, this application relies on simulations to illustrate the concept of statistical power.
 
 <hr>
 
@@ -13,7 +13,7 @@ To do this, you can simply run the code below in R:
 
 ```R
 library(shiny)
-runGitHub("powersimulate_ind_t_EN", "JDLeongomez")
+runGitHub("PowerSimulate_ind_t_EN", "JDLeongomez")
 ```
 
-(**NOTA:** Para la versión en Español, entra a https://github.com/JDLeongomez/powersimulate_ind_t_ES)
+(**NOTA:** Para la versión en Español, entra a https://github.com/JDLeongomez/PowerSimulate_ind_t_ES)
