@@ -36,17 +36,19 @@ ui <- fluidPage(
                                type = "image",
                                href = "https://image.pngaaa.com/393/402393-middle.png"),
              "PowerSimulate (independent t- test)"),
-  HTML("<img src='ind_t_eng.svg'' width='600'>"),
-  p(HTML("Power analysis based on the simulation of a population, and the probability of 
-         obtaining a significant result with a sample of a given size")),
-  p(HTML("Code available from
+  HTML("<center><img src='ind_t_eng.svg'' width='600'></center>"),
+  tags$h3(HTML("<center>Independent <em>t</em>-test</center>")),
+  p(HTML("<center>Code available from
       <a style=color:#ff5555;  href='https://github.com/JDLeongomez/ProbDnD_EN'>GitHub</a>
       - Created by
       <a style=color:#ff5555;  href='https://jdleongomez.info/en/'>Juan David Leongómez</a>
-      · 2023 · <a style=color:#4075de;  href='https://shiny.jdl-svr.lat/ProbDnD/'>Versión en español</a>
-      ")),
-  p(),
+      · 2023 · <a style=color:#4075de;  href='https://shiny.jdl-svr.lat/powersimulate_ind_t_ES/'>
+      Versión en español</a></center>")),
   hr(),
+  p(HTML("<center>Power analysis based on the simulation of a population, and the probability of
+         obtaining a significant result with a sample of a given size.<br>Although more direct 
+         tools for power analysis exist for <em>t</em>-tests, this application relies on 
+         simulations to illustrate the concept of statistical power.</center>")),
   fluidRow(
     column(2,
            tags$h2("Group parameters"),
@@ -89,7 +91,7 @@ ui <- fluidPage(
                         value = 2.8,
                         step = 0.0001,
                         width = '300px')
-           ),
+    ),
     column(4,
            tags$h1("Population effect size"),
            tags$h3("If this was the difference in the population"),
@@ -127,27 +129,33 @@ ui <- fluidPage(
                        choices = c("Group 1 ≠ Group 2", 
                                    "Group 1 > Group 2",
                                    "Group 1 < Group 2"
-                                   )),
+                       )),
            numericInput(inputId = "reps",
-                        label = "Number of simulations (No need to change it)",
+                        label = HTML("Number of simulations<br>
+                                     <span style='font-weight:normal'>(larger numbers increase accuracy but take more time)</span>"),
                         min = 1,
                         max = 10000000,
                         value = 100,
                         step = 1,
-                        width = '200px')
-           ),
+                        width = '200px'),
+           actionBttn(inputId = "run",
+                      label = "Calculate power",
+                      icon = icon("play"),
+                      style = "pill",
+                      color = "danger")
+    ),
     column(4,
            tags$h1("Statistical power"),
            tags$h3("This is the statistical power you would reach"),
            plotOutput("powerPlot") %>% 
              withSpinner(color = "#ff5555"),
            htmlOutput("powText")
-           )
     )
+  )
 )
 
 server <- function(input, output, session) {
- 
+  
   # Simulate population
   dat <- reactive({
     datos <- tibble(A = rnorm(100000, mean = input$mean1, sd = input$sd1),
@@ -215,10 +223,11 @@ server <- function(input, output, session) {
       theme(legend.position="bottom", 
             legend.title=element_text(size=14),
             legend.text = element_text(size = 12))
-    })
+  })
   
   # Create object with selected hypothesis alternative
   altern <<- reactive({
+    runif(input$run)
     dplyr::case_when(
       input$alts == "Group 1 ≠ Group 2" ~ "two.sided",
       input$alts == "Group 1 > Group 2" ~ "greater",
@@ -226,11 +235,13 @@ server <- function(input, output, session) {
   })
   
   sig.lev <<- reactive({
+    runif(input$run)
     input$alpha
   })
   
   # Simulate samples and test significance in each
-    dat.sim <- reactive({
+  dat.sim <- reactive({
+    runif(input$run)
     req(input$alts)
     dato <- ddply(map_dfr(seq_len(input$reps), ~dat() %>%
                             sample_n(input$sample_size) %>%
@@ -244,15 +255,16 @@ server <- function(input, output, session) {
     return(dato)
   })
   
-    # Power simulation plot 
+  # Power simulation plot 
   output$powerPlot <- renderPlot({
+    runif(input$run)
     ggplot(dat.sim(), aes(x = p, fill = Significance)) +
       scale_fill_hue(direction = -1) +
       geom_histogram(bins = 1/input$alpha, breaks = seq(0, 1, input$alpha), alpha = 0.8) +
       labs(y = "Count", x = "p-value") +
       scale_x_continuous(breaks = pretty_breaks(n = 20)) +
       annotate("text", x = 0.5, y = Inf, size = 7, vjust = 2,
-               label = paste0("Power = ", round(sum(dat.sim()$Significance == "Significant") / input$reps, 3))) +
+               label = paste0("Power (1 - β) = ", round(sum(dat.sim()$Significance == "Significant") / input$reps, 3))) +
       annotate("text", x = 0.5, y = Inf, vjust = 5,
                label = paste0("Sample size = ", input$sample_size)) +
       annotate("text", x = 0.5, y = Inf, vjust = 6.5,
@@ -260,7 +272,7 @@ server <- function(input, output, session) {
       theme(legend.position="bottom", 
             legend.title=element_text(size=14),
             legend.text = element_text(size = 12))
-    })
+  })
   
   output$powText <- renderText({
     paste("<b style=color:#ff5555;>INTERPRETATION: </b>
@@ -271,7 +283,7 @@ server <- function(input, output, session) {
           percent(round(sum(dat.sim()$Significance == "Significant") / input$reps, 2)),
           " of the cases.")
   })
-  }
+}
 
 # Same theme for plots
 thematic_shiny()

@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="149.44371mm"
-   height="36.009022mm"
-   viewBox="0 0 149.44371 36.009022"
+   width="149.19603mm"
+   height="26.95129mm"
+   viewBox="0 0 149.19603 26.95129"
    version="1.1"
    id="svg5"
    xml:space="preserve"
@@ -28,28 +28,28 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.96102398"
-     inkscape:cx="217.47636"
+     inkscape:cx="91.048717"
      inkscape:cy="44.743941"
      inkscape:window-width="1920"
      inkscape:window-height="1057"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g16534" /><defs
+     inkscape:current-layer="layer1" /><defs
      id="defs2" /><g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-23.178791,-194.89625)"><rect
-       style="fill:#272b30;fill-opacity:1;stroke:none;stroke-width:0.247684;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.8"
+     transform="translate(-23.302633,-195.0201)"><rect
+       style="fill:#272b30;fill-opacity:1;stroke:none;stroke-width:0.215021;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.8"
        id="rect12510"
        width="149.19603"
-       height="35.761337"
+       height="26.95129"
        x="23.302633"
        y="195.0201"
        ry="0" /><g
        id="g16534"
-       transform="translate(0,-0.53491636)"><g
+       transform="translate(1.6678017e-6,-0.3078935)"><g
          id="g13615"
          transform="matrix(0.06077429,0,0,-0.06077429,40.122906,758.28022)"
          style="fill:#000000"><g
@@ -762,16 +762,4 @@
            id="tspan15959"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Nunito;-inkscape-font-specification:Nunito;fill:#ffffff;stroke-width:0.11251"
            x="118.72511"
-           y="218.3004">simulation based power analysis</tspan></text><text
-         xml:space="preserve"
-         style="font-style:italic;font-size:4.06101px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';text-align:center;word-spacing:0px;text-anchor:middle;fill:#ffffff;stroke-width:0.0846043"
-         x="118.58095"
-         y="227.81497"
-         id="text15961-0"><tspan
-           sodipodi:role="line"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Nunito;-inkscape-font-specification:Nunito;fill:#ffffff;stroke-width:0.0846043"
-           x="118.58095"
-           y="227.81497"
-           id="tspan16346">independent <tspan
-   style="font-style:italic;stroke-width:0.0846043"
-   id="tspan16350">t</tspan>-test</tspan></text></g></g></svg>
+           y="218.3004">simulation based power analysis</tspan></text></g></g></svg>
