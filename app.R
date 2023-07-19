@@ -103,7 +103,7 @@ ui <- fluidPage(
                        first, it pooles the standard deviations of the two groups, which may not be 
                        ideal if they are quite different, and tends to provide biased estimates
                        when the groups have small sample sizes. For this reason, Hedges' <em>g</em>
-                       is a valuable alternative.")),
+                       and Glass's delta are valuable alternatives.")),
     ),
     column(2,
            tags$h2("Simulation parameters"),
