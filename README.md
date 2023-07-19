@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/JDLeongomez/powersimulate_ind_t_EN/master/www/ind_t_eng.svg" align="left" width=400 height=100 alt=""/>
+# <img src="https://raw.githubusercontent.com/JDLeongomez/PowerSimulate_ind_t_EN/master/www/ind_t_eng.svg" align="left" width=400 height=100 alt=""/>
 
 ## Independent *t*-test
 <br>
@@ -7,7 +7,7 @@ Although more direct tools for power analysis exist for simulations to illustrat
 
 <hr>
 
-This app is available from my (rather slow) personal [Shiny server](https://shiny.jdl-svr.lat/powersimulate_ind_t_EN/). However, if that is too slow or my server is not working, you can always run it locally in your computer with R installed. 
+This app is available from my (rather slow) personal [Shiny server](https://shiny.jdl-svr.lat/PowerSimulate_ind_t_EN/). However, if that is too slow or my server is not working, you can always run it locally in your computer with R installed. 
 
 To do this, you can simply run the code below in R:
 
