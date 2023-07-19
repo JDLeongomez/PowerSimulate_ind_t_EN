@@ -270,7 +270,7 @@ server <- function(input, output, session) {
   output$powText <- renderText({
     paste("<b style=color:#ff5555;>INTERPRETATION: </b>
           The power is nothing more than the proportion of significant results 
-          (<em>p</em> < α) with . So, if the true difference in the population was as
+          (<em>p</em> < α). So, if the true difference in the population was as
           specified, with a random sample of ", input$sample_size, " subjects, 
           you would get a significant result in aproximately ", 
           percent(round(sum(dat.sim()$Significance == "Significant") / input$reps, 2)),
