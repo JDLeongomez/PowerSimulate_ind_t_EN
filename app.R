@@ -39,7 +39,7 @@ ui <- fluidPage(
   HTML("<center><img src='ind_t_eng.svg'' width='600'></center>"),
   tags$h3(HTML("<center>Independent <em>t</em>-test</center>")),
   p(HTML("<center>Code available from
-      <a style=color:#ff5555;  href='https://github.com/JDLeongomez/ProbDnD_EN'>GitHub</a>
+      <a style=color:#ff5555;  href='https://github.com/JDLeongomez/powersimulate_ind_t_EN'>GitHub</a>
       - Created by
       <a style=color:#ff5555;  href='https://jdleongomez.info/en/'>Juan David Leongómez</a>
       · 2023 · <a style=color:#4075de;  href='https://shiny.jdl-svr.lat/powersimulate_ind_t_ES/'>
