@@ -207,7 +207,7 @@ server <- function(input, output, session) {
                label = paste0("Cohen's d = ", round(abs(cohen.d()$Cohens_d), 2))) +
       annotate("text", x = min(dat.dist()$x), y = Inf, 
                hjust = 0, vjust = 6,
-               label = paste0("Hedge's g = ", round(abs(hedges.g()$Hedges_g), 2))) +
+               label = paste0("Hedges' g = ", round(abs(hedges.g()$Hedges_g), 2))) +
       annotate("text", x = min(dat.dist()$x), y = Inf, 
                hjust = 0, vjust = 8,
                label = paste0("Glass's delta = ", round(abs(glass.delta()$Glass_delta), 2))) +
