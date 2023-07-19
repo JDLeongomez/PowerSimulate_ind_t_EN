@@ -132,17 +132,14 @@ ui <- fluidPage(
                        )),
            numericInput(inputId = "reps",
                         label = HTML("Number of simulations<br>
-                                     <span style='font-weight:normal'>(larger numbers increase accuracy but take more time)</span>"),
+                                     <span style='font-weight:normal'>Larger numbers increase accuracy but take more time. 
+                                     By default it runs only 100 simulations, but once you have checked all 
+                                     parameters, I suggest running 1000+ simulations to increase accuracy.</span>"),
                         min = 1,
                         max = 10000000,
                         value = 100,
                         step = 1,
-                        width = '200px'),
-           actionBttn(inputId = "run",
-                      label = "Calculate power",
-                      icon = icon("play"),
-                      style = "pill",
-                      color = "danger")
+                        width = '300px')
     ),
     column(4,
            tags$h1("Statistical power"),
@@ -227,7 +224,6 @@ server <- function(input, output, session) {
   
   # Create object with selected hypothesis alternative
   altern <<- reactive({
-    runif(input$run)
     dplyr::case_when(
       input$alts == "Group 1 ≠ Group 2" ~ "two.sided",
       input$alts == "Group 1 > Group 2" ~ "greater",
@@ -235,13 +231,11 @@ server <- function(input, output, session) {
   })
   
   sig.lev <<- reactive({
-    runif(input$run)
     input$alpha
   })
   
   # Simulate samples and test significance in each
   dat.sim <- reactive({
-    runif(input$run)
     req(input$alts)
     dato <- ddply(map_dfr(seq_len(input$reps), ~dat() %>%
                             sample_n(input$sample_size) %>%
@@ -257,7 +251,6 @@ server <- function(input, output, session) {
   
   # Power simulation plot 
   output$powerPlot <- renderPlot({
-    runif(input$run)
     ggplot(dat.sim(), aes(x = p, fill = Significance)) +
       scale_fill_hue(direction = -1) +
       geom_histogram(bins = 1/input$alpha, breaks = seq(0, 1, input$alpha), alpha = 0.8) +
