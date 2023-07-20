@@ -44,7 +44,7 @@ ui <- fluidPage(
       <a style=color:#ff5555;  href='https://jdleongomez.info/en/'>Juan David Leongómez</a>
       · 2023 · <a style=color:#4075de;  href='https://shiny.jdl-svr.lat/PowerSimulate_ind_t_ES/'>
       Versión en español</a> 
-      · <a style=color:#ff5555;  href='https://shiny.jdl-svr.lat/PowerSimulate_corr_EN'>Correlation version of the app.</a></center>")),
+      · <a style=color:#ff5555;  href='https://shiny.jdl-svr.lat/PowerSimulate_corr_EN'>PowerSimulate: Correlation.</a></center>")),
   hr(),
   p(HTML("<center>Power analysis based on the simulation of a population, and the probability of
          obtaining a significant result with a sample of a given size.<br>Although more direct 
@@ -267,7 +267,8 @@ server <- function(input, output, session) {
                label = paste0("α = ", input$alpha)) +
       theme(legend.position="bottom", 
             legend.title=element_text(size=14),
-            legend.text = element_text(size = 12))
+            legend.text = element_text(size = 12)) +
+      guides(fill = guide_legend(reverse=TRUE))
   })
   
   output$powText <- renderText({
