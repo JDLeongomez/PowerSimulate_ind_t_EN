@@ -97,7 +97,7 @@ ui <- fluidPage(
            tags$h3("If this was the difference in the population"),
            plotOutput("effectPlot") %>% 
              withSpinner(color = "#ff5555"),
-           tags$p(HTML("<b style=color:#ff5555;>NOTE:</b> While Cohen's 
+           tags$p(HTML("<b style=color:#ff5555;>NOTE:</b> Cohen's 
                        <em>d</em> is the most common effect size for standardised
                        differences between two means. However, it has some limitations:
                        first, it pooles the standard deviations of the two groups, which may not be 
