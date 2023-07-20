@@ -43,7 +43,8 @@ ui <- fluidPage(
       - Created by
       <a style=color:#ff5555;  href='https://jdleongomez.info/en/'>Juan David Leongómez</a>
       · 2023 · <a style=color:#4075de;  href='https://shiny.jdl-svr.lat/PowerSimulate_ind_t_ES/'>
-      Versión en español</a></center>")),
+      Versión en español</a> 
+      · <a style=color:#ff5555;  href='https://shiny.jdl-svr.lat/PowerSimulate_corr_EN'>Correlation version of the app.</a></center>")),
   hr(),
   p(HTML("<center>Power analysis based on the simulation of a population, and the probability of
          obtaining a significant result with a sample of a given size.<br>Although more direct 
@@ -201,7 +202,8 @@ server <- function(input, output, session) {
       geom_vline(aes(xintercept = input$mean2, color = "white"),
                  linetype="dashed",
                  show.legend = FALSE) +
-      scale_fill_discrete(labels = c(input$label1, input$label2)) +
+      scale_fill_manual(values = c("#4075de", "#ff5555"),
+                        labels = c(input$label1, input$label2)) +
       annotate("text", x = min(dat.dist()$x), y = Inf, 
                hjust = 0, vjust = 2, size = 7,
                label = paste0("Cohen's d = ", round(abs(cohen.d()$Cohens_d), 2))) +
@@ -254,6 +256,7 @@ server <- function(input, output, session) {
     ggplot(dat.sim(), aes(x = p, fill = Significance)) +
       scale_fill_hue(direction = -1) +
       geom_histogram(bins = 1/input$alpha, breaks = seq(0, 1, input$alpha), alpha = 0.8) +
+      scale_fill_manual(values = c("#4075de", "#ff5555")) +
       labs(y = "Count", x = "p-value") +
       scale_x_continuous(breaks = pretty_breaks(n = 20)) +
       annotate("text", x = 0.5, y = Inf, size = 7, vjust = 2,
@@ -271,10 +274,10 @@ server <- function(input, output, session) {
     paste("<b style=color:#ff5555;>INTERPRETATION: </b>
           The power is nothing more than the proportion of significant results 
           (<em>p</em> < α). So, if the true difference in the population was as
-          specified, with a random sample of ", input$sample_size, " subjects, 
-          you would get a significant result in aproximately ", 
+          specified, with a random sample of <font color=\'#ff5555\'><b>", input$sample_size, 
+          "</b></font>, you would get a significant result in aproximately <font color=\'#ff5555\'><b>", 
           percent(round(sum(dat.sim()$Significance == "Significant") / input$reps, 2)),
-          " of the cases.")
+          "</b></font> of the cases.")
   })
 }
 
