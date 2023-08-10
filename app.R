@@ -132,15 +132,17 @@ ui <- fluidPage(
                                    "Group 1 < Group 2"
                        )),
            numericInput(inputId = "reps",
-                        label = HTML("Number of simulations<br>
-                                     <span style='font-weight:normal'>Larger numbers increase accuracy but take more time. 
-                                     By default it runs only 100 simulations, but once you have checked all 
-                                     parameters, I suggest running 1000+ simulations to increase accuracy.</span>"),
+                        label = HTML("Number of simulations:
+                                     <span style='font-weight:normal'>By default only 100 simulations are run, 
+                                     but once you have checked all the parameters, I suggest that you run 1000 
+                                     or more simulations to increase the accuracy (the more simulations you run, 
+                                     the longer it will take).</span>"),
                         min = 1,
-                        max = 10000000,
+                        max = 1000000,
                         value = 100,
                         step = 1,
-                        width = '300px')
+                        width = '300px'),
+           nextGenShinyApps::submitButton("runSim", text = "All ready? Run the simulation!", icon("paper-plane"), bg.type = "danger")
     ),
     column(4,
            tags$h1("Statistical power"),
@@ -260,7 +262,7 @@ server <- function(input, output, session) {
       labs(y = "Count", x = "p-value") +
       scale_x_continuous(breaks = pretty_breaks(n = 20)) +
       annotate("text", x = 0.5, y = Inf, size = 7, vjust = 2,
-               label = paste0("Power (1 - β) = ", round(sum(dat.sim()$Significance == "Significant") / input$reps, 3))) +
+               label = paste0("Power (1 - β) = ", round(sum(dat.sim()$Significance == "Significant") / input$reps, 2))) +
       annotate("text", x = 0.5, y = Inf, vjust = 5,
                label = paste0("Sample size = ", input$sample_size)) +
       annotate("text", x = 0.5, y = Inf, vjust = 6.5,
@@ -275,7 +277,7 @@ server <- function(input, output, session) {
     paste("<b style=color:#ff5555;>INTERPRETATION: </b>
           The power is nothing more than the proportion of significant results 
           (<em>p</em> < α). So, if the true difference in the population was as
-          specified, with a random sample of <font color=\'#ff5555\'><b>", input$sample_size, 
+          specified, with a random sample of <font color=\'#ff5555\'><b><em>n</em> = ", input$sample_size, 
           "</b></font>, you would get a significant result in aproximately <font color=\'#ff5555\'><b>", 
           percent(round(sum(dat.sim()$Significance == "Significant") / input$reps, 2)),
           "</b></font> of the cases.")
