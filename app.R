@@ -36,7 +36,7 @@ ui <- fluidPage(
                                type = "image",
                                href = "https://image.pngaaa.com/393/402393-middle.png"),
              "PowerSimulate (independent t- test)"),
-  HTML("<center><img src='powersimulate.svg'' width='600'></center>"),
+  HTML("<center><a href='https://shiny.jdl-svr.lat/PowerSimulate'><img src='powersimulate.svg'' width='600'></a></center>"),
   tags$h3(HTML("<center>Independent <em>t</em>-test</center>")),
   p(HTML("<center>Code available from
       <a style=color:#ff5555;  href='https://github.com/JDLeongomez/PowerSimulate_ind_t_EN'>GitHub</a>
